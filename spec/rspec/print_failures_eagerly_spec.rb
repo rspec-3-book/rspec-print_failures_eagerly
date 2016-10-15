@@ -1,13 +1,28 @@
-require "rspec/print_failures_eagerly"
-require "rspec/core/sandbox"
-require "stringio"
+require "aruba/api"
 
-RSpec.describe RSpec::PrintFailuresEagerly do
-  around { |ex| RSpec::Core::Sandbox.sandboxed(&ex) }
+RSpec.describe "RSpec::PrintFailuresEagerly" do
+  include Aruba::Api
+
+  before do
+    1.upto(2) do |i|
+      write_file "spec/#{i}_spec.rb", "
+        RSpec.describe 'Group #{i}' do
+          it 'fails' do
+            expect(1).to eq 2
+          end
+
+          it 'passes' do
+            expect(1).to eq 1
+          end
+        end
+      "
+    end
+  end
 
   it "works with the default progress formatter" do
     expect(run_example_specs).to eq(unindent <<-EOS)
       F
+
         1) Group 1 fails
            Failure/Error: expect(1).to eq 2
 
@@ -15,10 +30,10 @@ RSpec.describe RSpec::PrintFailuresEagerly do
                   got: 1
 
              (compared using ==)
-
            # <truncated backtrace>
 
       .F
+
         2) Group 2 fails
            Failure/Error: expect(1).to eq 2
 
@@ -26,7 +41,6 @@ RSpec.describe RSpec::PrintFailuresEagerly do
                   got: 1
 
              (compared using ==)
-
            # <truncated backtrace>
 
       .
@@ -36,16 +50,18 @@ RSpec.describe RSpec::PrintFailuresEagerly do
 
       Failed examples:
 
-      rspec './spec/rspec/print_failures_eagerly_spec.rb[1:1]' # Group 1 fails
-      rspec './spec/rspec/print_failures_eagerly_spec.rb[2:1]' # Group 2 fails
+      rspec ./spec/1_spec.rb:3 # Group 1 fails
+      rspec ./spec/2_spec.rb:3 # Group 2 fails
+
     EOS
   end
 
   it "works with the documentation formatter" do
-    expect(run_example_specs { |c| c.formatter = 'doc' }).to eq(unindent <<-EOS)
+    expect(run_example_specs("--format doc")).to eq(unindent <<-EOS)
 
       Group 1
         fails (FAILED - 1)
+
 
         1) Group 1 fails
            Failure/Error: expect(1).to eq 2
@@ -54,13 +70,13 @@ RSpec.describe RSpec::PrintFailuresEagerly do
                   got: 1
 
              (compared using ==)
-
            # <truncated backtrace>
 
         passes
 
       Group 2
         fails (FAILED - 2)
+
 
         2) Group 2 fails
            Failure/Error: expect(1).to eq 2
@@ -69,7 +85,6 @@ RSpec.describe RSpec::PrintFailuresEagerly do
                   got: 1
 
              (compared using ==)
-
            # <truncated backtrace>
 
         passes
@@ -79,8 +94,9 @@ RSpec.describe RSpec::PrintFailuresEagerly do
 
       Failed examples:
 
-      rspec './spec/rspec/print_failures_eagerly_spec.rb[1:1]' # Group 1 fails
-      rspec './spec/rspec/print_failures_eagerly_spec.rb[2:1]' # Group 2 fails
+      rspec ./spec/1_spec.rb:3 # Group 1 fails
+      rspec ./spec/2_spec.rb:3 # Group 2 fails
+
     EOS
   end
 
@@ -97,30 +113,21 @@ RSpec.describe RSpec::PrintFailuresEagerly do
   end
 
   def normalize_output(output)
-    output.string.gsub(/^((\s+)# .+$)+/) do |match|
+    output.gsub(/^((\s+)# .+$)+/) do |match|
       "#{$2}# <truncated backtrace>"
     end.gsub(/\d+\.\d+/, "n.nnnn")
   end
 
-  def run_example_specs
-    output = StringIO.new
+  def run_example_specs(cli_options="")
+    dir_for_this_lib = File.expand_path("../../../lib", __FILE__)
 
-    RSpec.configure do |config|
-      RSpec::PrintFailuresEagerly.lazily_add_formatter_to(config)
+    write_file ".rspec", "
+    -I#{dir_for_this_lib}
+    --require rspec/print_failures_eagerly
+    "
 
-      config.output_stream = output
-      config.error_stream = output
-
-      yield config if block_given?
-    end
-
-    config_options = RSpec::Core::ConfigurationOptions.new([])
-    runner = RSpec::Core::Runner.new(config_options)
-
-    groups = Array.new(2) { |i| build_group(i + 1) }
-    runner.run_specs(groups)
-
-    normalize_output(output)
+    run("rspec #{cli_options}")
+    normalize_output(all_output)
   end
 
   # Intended for use with indented heredocs.
