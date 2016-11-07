@@ -19,7 +19,7 @@ module RSpec
       end
     end
 
-    module NeuterDumpFailures
+    module SilenceDumpFailures
       def dump_failures(_notification)
       end
 
