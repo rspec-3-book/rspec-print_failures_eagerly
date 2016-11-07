@@ -9,12 +9,12 @@ module RSpec
 
       def initialize(output)
         @output = output
-        @failure_count = 0
+        @last_failure_index = 0
       end
 
       def example_failed(notification)
         @output.puts
-        @output.puts notification.fully_formatted(@failure_count += 1)
+        @output.puts notification.fully_formatted(@last_failure_index += 1)
         @output.puts
       end
     end
