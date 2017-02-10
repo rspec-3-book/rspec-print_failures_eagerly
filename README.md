@@ -1,15 +1,19 @@
-# RspecPrintFailuresEagerly
+# RSpec::PrintFailuresEagerly
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rspec_print_failures_eagerly`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This gem, featured in [Effective Testing with RSpec 3: Build Ruby Apps with
+Confidence](https://pragprog.com/book/rspec3/effective-testing-with-rspec-3),
+modifies the built-in `progress` and `documentation` formatters to make
+them print failures _eagerly_, when they happen, rather than waiting
+until the end to print them all. This can be handy for long-running spec
+suites so you can begin digging into a failure while the rest of your
+suite finishes running.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'rspec_print_failures_eagerly'
+gem 'rspec-print_failures_eagerly'
 ```
 
 And then execute:
@@ -18,24 +22,26 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install rspec_print_failures_eagerly
+    $ gem install rspec-print_failures_eagerly
 
 ## Usage
 
-TODO: Write usage instructions here
+Just load it from `spec/spec_helper.rb`:
 
-## Development
+``` ruby
+require 'rspec/print_failures_eagerly'
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+...or tell RSpec to require it by putting it in `.rspec`:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```
+--require rspec/print_failures_eagerly
+```
 
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/rspec_print_failures_eagerly. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
-
+That's it!  The book also walks through how to set it up to
+automatically apply to all projects on your machine, without
+needing to add this gem to each.
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
