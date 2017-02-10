@@ -1,6 +1,4 @@
-# RSpec::PrintFailuresEagerly
-
-[![Gem Version](https://badge.fury.io/rb/rspec-print_failures_eagerly.svg)](https://badge.fury.io/rb/rspec-print_failures_eagerly)
+# RSpec::PrintFailuresEagerly [![Gem Version](https://badge.fury.io/rb/rspec-print_failures_eagerly.svg)](https://badge.fury.io/rb/rspec-print_failures_eagerly)
 
 This gem, featured in [Effective Testing with RSpec 3: Build Ruby Apps with
 Confidence](https://pragprog.com/book/rspec3/effective-testing-with-rspec-3),
